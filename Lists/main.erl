@@ -1,7 +1,7 @@
 -module(main).
 -export([last/1,last_but_one/1,nth/2]).
 -export([lengthMe/1,reverse/1,palindrome/1]).
--export([flatten/1]).
+-export([flatten/1,compress/1]).
 
 %% 1.01 (*) Find the last element of a list.
 last([Element]) -> Element;
@@ -28,4 +28,21 @@ reverse([Head|Tail],Result) -> reverse(Tail,[Head|Result]).
 
 %% 1.06 (*) Find out whether a list is a palindrome. 
 palindrome(Liste) -> Liste == reverse(Liste).
-							
+
+%% 1.07 (**) Flatten a nested list structure.
+flatten(Liste) -> lists:reverse(flatten(Liste,[])).
+
+flatten([],Result) -> Result;
+flatten([Head|Tail],Result) 
+	when is_list(Head) ->	flatten(Tail,flatten(Head,Result)) ;
+
+flatten([Head|Tail],Result) 
+	when not(is_list(Head)) -> flatten(Tail,[Head|Result]).	
+
+%% 1.08 (**) Eliminate consecutive duplicates of list elements.
+compress(Liste) -> lists:reverse(compress(Liste,[])).						
+
+compress([Head], Result) -> [Head|Result];
+compress([Head,Head|Tail],Result) 
+	when Head == Head -> compress([Head|Tail], Result);
+compress([Head,Second|Tail],Result) -> compress([Second|Tail], [Head|Result]).
