@@ -40,3 +40,43 @@ compress([Element],[Element]).
 compress([Head,Head|Tail], Result) :- compress([Head|Tail],Result).
 compress([Head,Second|Tail],Result) :- 	compress([Second|Tail],ResultTmp),
 										append([Head],ResultTmp,Result).
+
+%% 1.09 (**) Pack consecutive duplicates of list elements into sublists.
+pack([],[]).
+pack([Head,Head|Tail],Result):- small_pack([Head,Head|Tail],SubList,NewTail),
+								append([SubList],ResultTmp,Result),
+								pack(NewTail,ResultTmp).
+
+pack([Head|Tail],Result) :- 	pack(Tail,ResultTmp),
+								append([[Head]],ResultTmp,Result).
+
+
+small_pack([Head],[Head],[]).
+small_pack([Head,Second|Tail],[Head],[Second|Tail]) :- not(Head = Second).
+small_pack([Head,Head|Tail], Result, NewTail) :- 	append([Head],ResultTmp,Result),
+													small_pack([Head|Tail],ResultTmp, NewTail).
+												
+%% 1.10 (*) Run-length encoding of a list.
+encode(Liste,Result) :- pack(Liste,ResultTmp),
+						small_encode(ResultTmp,Result).
+
+small_encode([],[]).
+small_encode([Head|Tail],Result) :- [First|_] = Head,
+									lengthMe(Head,Size),
+									Liste = [Size,First],
+									append([Liste],ResultTmp,Result),
+									small_encode(Tail,ResultTmp).
+
+%% 1.11 (*) Modified run-length encoding.
+encode_modified(Liste,Result) :- 	encode(Liste,ResultTmp),
+									small_modified_encode(ResultTmp,Result).
+
+small_modified_encode([],[]).
+small_modified_encode([Head|Tail],Result) :- 	[Size,Element] = Head,
+												Size = 1,
+												append([Element],ResultTmp,Result),
+												small_modified_encode(Tail,ResultTmp).
+small_modified_encode([Head|Tail],Result) :- 	[Size,_] = Head,
+												not(Size = 1),
+												append([Head],ResultTmp,Result),
+												small_modified_encode(Tail,ResultTmp).												
