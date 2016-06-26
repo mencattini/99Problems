@@ -232,3 +232,50 @@ combination(N,Liste,Result) 	-> case length(Result) == (fac(length(Liste))/(fac(
 						 end
 				   end.
 
+%% 1.27 (**) Group the elements of a set into disjoint subsets.
+
+select(Liste,N) -> select(Liste,N,[]).
+
+select(Liste,N,Result) when N == 0
+			-> [Result,Liste];
+select(Liste,N,Result) when N > 0
+			-> [Element,NewListe] = remove_at(Liste,random:uniform(length(Liste))),
+			   Np = N - 1,
+			   select(NewListe,Np,[Element|Result]).
+
+group3(Liste) -> group3(Liste,[]).
+
+group3(Liste,Result) -> case length(Result) == (fac(length(Liste))/(fac(3)*fac(2)*fac(4)*fac(length(Liste)-2-3-4))) of
+				true -> Result;
+				false -> [SubListe1,NewListe] = select(Liste,2),
+					 [SubListe2,NewNewListe] = select(NewListe,3),
+					 [SubListe3,_] = select(NewNewListe,4),
+					 Res = [lists:sort(SubListe1),lists:sort(SubListe2),lists:sort(SubListe3)],
+					 case not(lists:member(Res,Result)) of
+						true -> group3(Liste,[Res|Result]);
+						false -> group3(Liste,Result)
+					end
+				end.
+
+%% Generalize the above predicate in a way that we can specify a list of group sizes and the predicate will return a list of groups.
+
+multiply(Liste) -> multiply(Liste,1).
+
+multiply([],Result) 		-> Result;
+multiply([Head|Tail],Result) 	-> Resultp = Result * Head,
+				   multiply(Tail,Resultp).
+
+listSelect(_,[],Result) 		-> Result;
+listSelect(Liste,[Head|Tail],Result) 	-> [SubListe,NewListe] = select(Liste,Head),
+					   listSelect(NewListe,Tail,[lists:sort(SubListe)|Result]).
+
+group(Liste,ListeSize) 		-> group(Liste,ListeSize,[]).
+
+group(Liste,ListeSize,Result) 	-> case length(Result) == (fac(length(Liste))/multiply(lists:map(fun(L) -> fac(L) end,ListeSize))) of
+	true -> length(Result);
+	false -> Res = listSelect(Liste,ListeSize,[]),
+		 case not(lists:member(Res,Result)) of
+			 true -> group(Liste,ListeSize,[Res|Result]);
+			 false -> group(Liste,ListeSize,Result)
+		 end
+	end.
