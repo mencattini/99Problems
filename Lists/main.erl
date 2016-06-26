@@ -4,7 +4,10 @@
 -export([flatten/1,compress/1,pack/1]).
 -export([encode/1,encode_modified/1,decode/1]).
 -export([encode_direct/1,dupli/1,dupliN/2]).
--export([drop/2]).
+-export([drop/2,split/2,slice/3]).
+-export([rotate/2,remove_at/2,insert_at/3]).
+-export([range/2,md_select/2,rnd_select/2]).
+-export([rnd_permut/1]).
 
 %% 1.01 (*) Find the last element of a list.
 last([Element]) -> Element;
@@ -145,3 +148,80 @@ drop(Liste,N) -> lists:reverse(drop(Liste,N,[])).
 drop([_|Tail],1,Result) 	-> lists:reverse(Tail) ++ Result;
 drop([Head|Tail],N,Result) 	-> Np = N -1,
 				   drop(Tail,Np,[Head|Result]).
+
+%% 1.17 (*) Split a list into two parts; the length of the first part is given.
+split(Liste,N) -> split(Liste,N,[]).
+
+split([Head|Tail],N,L1) when N == 1 
+				-> [lists:reverse([Head|L1]),Tail];
+split([Head|Tail],N,L1) 	-> Np = N - 1,
+				   split(Tail,Np,[Head|L1]).
+
+%% 1.18 (**) Extract a slice from a list.
+slice(Liste,Inf,Sup) -> slice(Liste,Inf,Sup,1,[]).
+
+slice(_,_,Sup,N,Result) when N > Sup
+					-> lists:reverse(Result);
+slice([_|Tail],Inf,Sup,N,Result) when N < Inf
+				      	-> Np = N + 1,
+					   slice(Tail,Inf,Sup,Np,Result);
+slice([Head|Tail],Inf,Sup,N,Result) when N >= Inf, N =< Sup
+					-> Np = N + 1,
+					   slice(Tail,Inf,Sup,Np,[Head|Result]).
+
+%% 1.19 (**) Rotate a list N places to the left.
+rotate(Liste,Shift) when Shift >= 0 
+			 -> rotate(Liste,Shift,[]);
+rotate(Liste,Shift) when Shift < 0
+			 -> lists:reverse(rotate(lists:reverse(Liste),-(Shift),[])).
+
+rotate([Head|Tail],Shift,Result) when Shift =< 1
+				      -> Tail ++ lists:reverse([Head|Result]);
+rotate([Head|Tail],Shift,Result) when Shift > 1
+				      -> Shiftp = Shift - 1,
+					 rotate(Tail,Shiftp,[Head|Result]).
+
+%% 1.20 (*) Remove the K'th element from a list.
+remove_at(Liste,Pos) -> remove_at(Liste,Pos,[]).
+
+remove_at([Head|Tail],Pos,Result) when Pos == 1
+					-> [Head,lists:reverse(Result)++Tail];
+remove_at([Head|Tail],Pos,Result) when Pos > 1
+					-> Posp = Pos - 1,
+					   remove_at(Tail,Posp,[Head|Result]).
+
+%% 1.21 (*) Insert an element at a given position into a list.
+insert_at(Element,Liste,Pos) -> insert_at(Element,Liste,Pos,[]).
+
+insert_at(Element,Liste,Pos,Result) when Pos == 1
+					-> lists:reverse([Element|Result]) ++ Liste;
+insert_at(Element,[Head|Tail],Pos,Result) when Pos > 1
+					-> Posp = Pos -1,
+					   insert_at(Element,Tail,Posp,[Head|Result]).
+
+%% 1.22 (*) Create a list containing all integers within a given range.
+range(Inf,Sup) -> range(Inf,Sup,[]).
+
+range(Inf,Sup,Result) when Inf == Sup
+			-> lists:reverse([Inf|Result]);
+range(Inf,Sup,Result) when Inf /= Sup
+			-> Infp = Inf + 1,
+			   range(Infp,Sup,[Inf|Result]).
+
+%% 1.23 (**) Extract a given number of randomly selected elements from a list.
+md_select(Liste,N) -> md_select(Liste,N,[]).
+
+md_select(_,N,Result) when N == 0
+			-> Result;
+md_select(Liste,N,Result) when N > 0
+			-> [Element,NewListe] = remove_at(Liste,random:uniform(length(Liste))),
+			   Np = N - 1,
+			   md_select(NewListe,Np,[Element|Result]).
+
+%% 1.24 (*) Lotto: Draw N different random numbers from the set 1..M.
+rnd_select(N,Max) -> Liste = range(1,Max),
+		     md_select(Liste,N).
+
+%% 1.25 (*) Generate a random permutation of the elements of a list.
+rnd_permut(Liste) -> md_select(Liste,length(Liste)).
+
