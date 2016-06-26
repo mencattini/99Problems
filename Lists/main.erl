@@ -1,13 +1,5 @@
 -module(main).
--export([last/1,last_but_one/1,nth/2]).
--export([lengthMe/1,reverse/1,palindrome/1]).
--export([flatten/1,compress/1,pack/1]).
--export([encode/1,encode_modified/1,decode/1]).
--export([encode_direct/1,dupli/1,dupliN/2]).
--export([drop/2,split/2,slice/3]).
--export([rotate/2,remove_at/2,insert_at/3]).
--export([range/2,md_select/2,rnd_select/2]).
--export([rnd_permut/1]).
+-compile(export_all).
 
 %% 1.01 (*) Find the last element of a list.
 last([Element]) -> Element;
@@ -224,4 +216,19 @@ rnd_select(N,Max) -> Liste = range(1,Max),
 
 %% 1.25 (*) Generate a random permutation of the elements of a list.
 rnd_permut(Liste) -> md_select(Liste,length(Liste)).
+
+%% 1.26 (**) Generate the combinations of K distinct objects chosen from the N elements of a list
+fac(0) -> 1;
+fac(N) when N > 0 -> N*fac(N-1).
+
+combination(N,Liste) -> combination(N,Liste,[]).
+
+combination(N,Liste,Result) 	-> case length(Result) == (fac(length(Liste))/(fac(N)*fac(length(Liste)-N))) of
+					true -> Result;
+					false -> SubListe = md_select(Liste,N),
+						 case not(lists:member(SubListe,Result)) of
+							true -> combination(N,Liste,[SubListe|Result]);
+							false -> combination(N,Liste,Result)
+						 end
+				   end.
 
