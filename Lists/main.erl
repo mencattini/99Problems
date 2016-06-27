@@ -279,3 +279,14 @@ group(Liste,ListeSize,Result) 	-> case length(Result) == (fac(length(Liste))/mul
 			 false -> group(Liste,ListeSize,Result)
 		 end
 	end.
+
+%% 1.28 (**) Sorting a list of lists according to length of sublists
+
+quickSort([]) 		-> [];
+quickSort([Head|Tail]) 	-> quickSort([E || E <- Tail, length(E) < length(Head)]) ++
+		 	   [Head] ++
+			   quickSort([E || E <- Tail, length(E) >= length(Head)]).
+
+lsort(Liste) -> quickSort(Liste).
+
+
