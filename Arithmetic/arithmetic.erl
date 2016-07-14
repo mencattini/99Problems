@@ -1,7 +1,8 @@
 -module(arithmetic).
 -export([is_prime/1,prime_factor/1,prime_factor_mult/1]).
 -export([prime_lists/2,goldbach/1,goldbach_lists/2]).
--export([goldbach_lists/3]).
+-export([goldbach_lists/3,gcd/2,coprime/2]).
+-export([toten_phi/1,phi/1]).
 
 %% 2.01 (**) Determine whether a given integer number is prime.
 is_prime(0) -> false;
@@ -95,3 +96,41 @@ goldbach_lists(Lower,Upper,N) when not(Lower == Upper)
 
 %% 2.07 (**) Determine the greatest common divisor of two positive integer numbers.
 %%  with Euclid's method
+gcd(A,B) when A < B  
+	 -> gcd(B,A);
+
+gcd(A,B) -> Reste = (A rem B),
+	    case (Reste == 0) of
+		true -> B;
+		false -> gcd(B,Reste)
+	    end.
+
+
+%% 2.08 (*) Determine whether two positive integer numbers are coprime.
+coprime(A,B) -> gcd(A,B) == 1.
+
+
+%% 2.09 (**) Calculate Euler's totient function phi(m). 
+toten_phi(N) 	-> length(toten_phi(N,N)).
+
+toten_phi(_,M) when M == 1
+		-> [1];
+
+toten_phi(N,M) 	-> case (coprime(N,M)) of
+			   true -> [M] ++ toten_phi(N,M-1);
+			   false -> toten_phi(N,M-1)
+		   end.
+
+%% 2.10 (**) Calculate Euler's totient function phi(m) (2).
+phi(M) -> Liste = prime_factor_mult(M),
+	  round(eulerProduct(Liste)).
+
+eulerProduct([]) 		-> 1;
+eulerProduct([Head|Tail]) 	-> [M,P] = Head,
+				   (P-1)*math:pow(P,M-1) * eulerProduct(Tail).
+
+
+%% 2.11 (*) Compare the two methods of calculating Euler's totient function.
+%% arithmetic:toten_phi(10000090). -> ~14s
+%% arithmetic:phi(10000090). -> ~ 1s
+
