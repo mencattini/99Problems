@@ -1,5 +1,5 @@
 -module(logic).
--export([table/1,table_general/2]).
+-export([table/1,table_general/2,gray/1]).
 %  3.01 (**) Truth tables for logical expressions.\\
 % Define predicates and/2, or/2, nand/2, nor/2, xor/2, impl/2
 % and equ/2 (for logical equivalence) which succeed or
@@ -41,3 +41,11 @@ table(F,[Head|Tail]) 	-> [Head ++ [F(Head)]] ++ table(F,Tail).
 %% 3.03 (**) Truth tables for logical expressions (3). 
 table_general(N,F) 	-> Table = create_table(N),
 			   table(F,Table).
+
+%% 3.04 (**) Gray code.
+gray(N) -> small_gray(round(math:pow(2,N))-1).
+
+small_gray(N) when N == -1
+		-> [];
+small_gray(N) 	-> small_gray(N-1) ++ [integer_to_list(N bxor (N bsr 1),2)].
+
