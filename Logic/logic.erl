@@ -1,5 +1,5 @@
 -module(logic).
--export([table/1]).
+-export([table/1,table_general/2]).
 %  3.01 (**) Truth tables for logical expressions.\\
 % Define predicates and/2, or/2, nand/2, nor/2, xor/2, impl/2
 % and equ/2 (for logical equivalence) which succeed or
@@ -16,21 +16,28 @@ perms([]) 	-> [[]];
 perms(L) 	-> [[H|T] || H <- L,
 		   T <- perms(L -- [H])].
 
-take_two([]) 		-> [];
-take_two([Head|Tail]) 	-> [First,Second|_] = Head,
-			   [[First,Second]] ++ take_two(Tail).
+take([],_) 		-> [];
+take([Head|Tail],N) 	-> Liste = lists:sublist(Head,N),
+			   [Liste] ++ take(Tail,N).
 
-create_table() 	->  Liste = perms([true,true,false,false]),
-		    NewListe = sets:from_list(take_two(Liste)),
+create_table(N)	->  True = lists:duplicate(N,true),
+		    False = lists:duplicate(N,false),
+		    Liste = perms(True ++ False),
+		    NewListe = sets:from_list(take(Liste,N)),
 		    sets:to_list(NewListe).
 
-table(F) 	-> Table = create_table(),
+table(F) 	-> Table = create_table(2),
 		   table(F,Table).
 
 %% Must be used with an anonymous function as:
-%% 	fun(A,B) -> A and (A or B) end
+%% 	fun([A,B]) -> A and (A or B) end
 table(_,[]) 		-> [];
-table(F,[[A,B]|Tail]) 	-> [[A,B,F(A,B)]] ++ table(F,Tail).
+table(F,[Head|Tail]) 	-> [Head ++ [F(Head)]] ++ table(F,Tail).
 
 %% 3.02 (*) Truth tables for logical expressions (2).
 %% It works with the 3.01 method and anonymous function
+
+
+%% 3.03 (**) Truth tables for logical expressions (3). 
+table_general(N,F) 	-> Table = create_table(N),
+			   table(F,Table).
