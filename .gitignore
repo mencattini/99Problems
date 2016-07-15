@@ -1,3 +1,4 @@
-Lists/mylists.beam
-Arithmetic/arithmetic.beam
-Arithmetic/mylists.beam
+Lists/*.beam
+Arithmetic/*.beam
+Arithmetic/*.beam
+Logic/*.beam
