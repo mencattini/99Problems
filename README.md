@@ -10,4 +10,9 @@ The goal is to learn and improve my Erlang. I will try to realize the 99 prolog-
  * For the **3.01-3.03**, your predicat must be an anonymous function like : ``` fun([A,B]) -> A and (A or B) end```. It must be a list of arguments.
 
 
+## Communication
+
+It's not a part of the 99 prolog-problems. Just a personal try. The goal is to simulate some  communication way.
+
+
 
