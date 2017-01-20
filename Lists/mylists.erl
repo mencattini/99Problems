@@ -10,15 +10,22 @@ last_but_one([Element,_|[]]) 	-> Element;
 last_but_one([_|Tail]) 		-> last_but_one(Tail).
 
 %% 1.03 (*) Find the K'th element of a list.
-nth(1,[Element|_]) 	-> Element;
-nth(N,[_|Tail]) 	-> Np = N - 1,
-			   nth(Np, Tail).
+nth([],N) when N > 0 -> error;
+nth(_,N) when N == 0 -> tooSmall;
+nth([Element|_],N) when N == 1 -> Element;
+nth([_|Reste],N) when N > 0 -> nth(Reste, N-1).
 
 %% 1.04 (*) Find the number of elements of a list.
-lengthMe(Liste) 	-> lengthMe(0,Liste).
-lengthMe(N,[]) 		-> N;
-lengthMe(N,[_|Tail]) 	-> Np = N + 1,
-			   lengthMe(Np,Tail).
+%% funny use of the previous function
+my_length(Liste) -> my_length(Liste,1).
+
+my_length(Liste,N) -> Res = nth(Liste,N),
+											if
+												Res == error ->
+													N - 1;
+												true -> % work as an 'else branch'
+													my_length(Liste, N + 1)
+											end.
 
 %% 1.05 (*) Reverse a list.
 reverse(Liste) -> reverse(Liste,[]).
@@ -67,7 +74,7 @@ encode(Liste) -> 	NewListe = pack(Liste),
 
 encode([],Result) 		-> Result;
 encode([Head|Tail],Result) 	-> [First|_] = Head,
-				   Size = lengthMe(Head),
+				   Size = my_length(Head),
 				   encode(Tail,[[Size,First]|Result]).
 
 %% 1.11 (*) Modified run-length encoding.
