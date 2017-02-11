@@ -52,4 +52,24 @@ defmodule Liste do
     defp myLength([], n) do
         n
     end
+
+    # (*) Reverse a list.
+    def reverse(liste) do
+        reverse(liste, [])
+    end
+
+    defp reverse([element|[]], liste) do
+        liste ++ [element]
+    end
+
+    defp reverse([head|tail], liste) do
+        liste2 = reverse(tail, liste)
+        liste2 ++ [head]
+    end
+
+    # (*) Find out whether a list is a palindrome.
+    # A palindrome can be read forward or backward; e.g. [x,a,m,a,x].
+    def pallindrome(liste) do
+        liste == reverse(liste)
+    end
 end
