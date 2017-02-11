@@ -1,5 +1,5 @@
 -module(interaction).
--export([start/2,noeud/1,ring/1,start_ring/3]).
+-export([start/2,noeud/1,ring/0,start_ring/3]).
 
 
 %% part 1
@@ -46,6 +46,7 @@ ring(M) ->
 			receive
 				{_From,[Message,Pos,Liste]} ->
 					io:format("I'm ~p : ~s~n",[self(),Message]),
+					%% timer:sleep(3000),
 					if
 						Pos + 1 =< length(Liste) ->
 							Next = lists:nth(Pos + 1,Liste),
@@ -60,3 +61,4 @@ ring(M) ->
 		M =< 0 ->
 			exit(self(),normal)
 	end.
+
