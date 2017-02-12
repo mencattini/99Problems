@@ -359,13 +359,28 @@ defmodule Liste do
     ?- slice([a,b,c,d,e,f,g,h,i,k],3,7,L).
     X = [c,d,e,f,g]
     """
-    def slice(liste,beginV,endV) when beginV == 0 do
-        [sliceV,_] = split(liste, endV)
-        IO.puts(sliceV)
-        sliceV
+
+    def slice(liste, beginV, endV) do
+        slice(liste, beginV, endV, beginV)
     end
 
-    def slice([_|tail], beginV,endV) when beginV > 0 do
-        slice(tail, (beginV-1), endV)
+    defp slice([_|tail], beginV, endV, count) when count > 1 do
+        slice(tail, beginV, endV, count-1)
     end
+
+    defp slice(liste, beginV, endV, count) when count == 1 do
+        slice(liste, endV-beginV)
+    end
+
+    defp slice([head|tail], endV) when endV > 0 do
+        [head] ++ slice(tail, endV-1)
+    end
+    defp slice([head|_], endV) when endV == 0 do
+        [head]
+    end
+    defp slice([], _) do
+        []
+    end
+
+
 end
