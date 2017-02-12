@@ -193,4 +193,179 @@ defmodule Liste do
         size = length(head)
         subencode(tail, res ++ [[size,element]])
     end
+
+    @doc """
+     (*) Modified run-length encoding.
+    Modify the result of problem P10 in such a way that if an element has no duplicates it is simply copied into the result list. Only elements with duplicates are transferred as [N,E] terms.
+
+    Example:
+    ?- encode_modified([a,a,a,a,b,c,c,a,a,d,e,e,e,e],X).
+    X = [[4,a],b,[2,c],[2,a],d,[4,e]]
+    """
+    def encode_modified(liste) do
+        subencode_modified(pack(liste),[])
+    end
+
+    defp subencode_modified([], res) do
+        res
+    end
+    defp subencode_modified([head|tail], res) do
+        element = hd(head)
+        size = length(head)
+        if size == 1 do
+            subencode_modified(tail, res ++ [element])
+        else
+            subencode_modified(tail, res ++ [[size, element]])
+        end
+    end
+
+    @doc """
+        (**) Decode a run-length encoded list.
+    Given a run-length code list generated as specified in problem P11. Construct its uncompressed version.
+    """
+    def decode([]) do
+        []
+    end
+
+    def decode([head|tail]) do
+        if is_list(head) do
+            [size, element] = head
+            subdecode(size, element) ++ decode(tail)
+        else
+            [head] ++ decode(tail)
+        end
+    end
+
+    defp subdecode(n,element) when n == 1 do
+        [element]
+    end
+    
+    defp subdecode(n, element) when n > 1 do
+        [element] ++ subdecode(n-1, element)
+    end
+
+    @doc """
+    (**) Run-length encoding of a list (direct solution).
+    Implement the so-called run-length encoding data compression method directly. I.e. don't explicitly create the sublists containing the duplicates, as in problem P09, but only count them. As in problem P11, simplify the result list by replacing the singleton terms [1,X] by X.
+
+    Example:
+    ?- encode_direct([a,a,a,a,b,c,c,a,a,d,e,e,e,e],X).
+    X = [[4,a],b,[2,c],[2,a],d,[4,e]]
+    """
+    def encode_direct([]) do
+        []
+    end
+    
+    def encode_direct([head|tail]) do
+        [new_tail, tmp_encode] = count(tail, head, 1)
+        [tmp_encode] ++ encode_direct(new_tail)
+    end
+
+    defp count([], element, n) do
+        [[], [n, element]]
+    end
+
+    defp count([head|tail], element, n) do
+        if head == element do
+            count(tail, element, n+1)
+        else
+            [[head|tail], [n,element]]
+        end
+    end
+    
+    @doc """
+    (*) Duplicate the elements of a list.
+    Example:
+    ?- dupli([a,b,c,c,d],X).
+    X = [a,a,b,b,c,c,c,c,d,d]
+    """
+    def dupli([]) do
+        []
+    end
+
+    def dupli([head|tail]) do
+        [head, head] ++ dupli(tail)
+    end
+
+    @doc """
+    (**) Duplicate the elements of a list a given number of times.
+    Example:
+    ?- dupli([a,b,c],3,X).
+    X = [a,a,a,b,b,b,c,c,c]
+
+    What are the results of the goal:
+    ?- dupli(X,3,Y).
+    """
+    def dupli([],_n) do
+        []
+    end
+
+    def dupli([head|tail],n) do
+        multi(head,n) ++ dupli(tail, n)
+    end
+    
+    defp multi(_element, 0) do
+        []
+    end
+
+    defp multi(element, n) do
+        [element] ++ multi(element, n-1)
+    end
+
+    @doc """
+    (**) Drop every N'th element from a list.
+    Example:
+    ?- drop([a,b,c,d,e,f,g,h,i,k],3,X).
+    X = [a,b,d,e,g,h,k]
+    """
+    def drop([],_n) do
+        []
+    end
+
+    def drop([_head|tail], n) when n == 1 do
+        drop(tail,3)
+    end
+
+    def drop([head|tail], n) when n != 1 do
+        [head] ++ drop(tail, n-1)
+    end
+
+    @doc """
+    (*) Split a list into two parts; the length of the first part is given.
+    Do not use any predefined predicates.
+
+    Example:
+    ?- split([a,b,c,d,e,f,g,h,i,k],3,L1,L2).
+    L1 = [a,b,c]
+    L2 = [d,e,f,g,h,i,k]
+    """
+    def split(liste,n) do
+        split(liste, n, [])
+    end
+    
+    defp split(liste,n, res) when n == 0 do
+        [res,liste]
+    end
+
+    defp split([head|tail],n,res) when n >= 1 do
+        split(tail, n-1, res ++ [head])
+    end
+
+    @doc """
+    (**) Extract a slice from a list.
+    Given two indices, I and K, the slice is the list containing the elements between the I'th and K'th element of the original list (both limits included). Start counting the elements with 1.
+
+    Example:
+    ?- slice([a,b,c,d,e,f,g,h,i,k],3,7,L).
+    X = [c,d,e,f,g]
+    """
+    def slice(liste,beginV,endV) when beginV == 0 do
+        [sliceV,_] = split(liste, endV)
+        IO.puts(sliceV)
+        sliceV
+    end
+
+    def slice([_|tail], beginV,endV) when beginV > 0 do
+        slice(tail, (beginV-1), endV)
+    end
 end
